@@ -13,18 +13,54 @@ namespace Lab01PruebaED2.Controllers
             return View();
         }
 
-        public ActionResult About()
+        static int X = 0;
+        public ActionResult CargarArchivo()
         {
-            ViewBag.Message = "Your application description page.";
-
+            if(X > 0)
+            {
+                ViewBag.Msg = "Error al cargar el archivo";
+            }
+            X++;
             return View();
         }
 
-        public ActionResult Contact()
+        [HttpPost]
+        public ActionResult CargarArchivo(HttpPostedFileBase AComprimir)
         {
-            ViewBag.Message = "Your contact page.";
+            if (AComprimir != null)
+            {
+                Subir(AComprimir);
+                return RedirectToAction("Subir");
+            }
+            else
+            {
+                ViewBag.Msg = "ERROR AL CARGAR EL ARCHIVO, INTENTE DE NUEVO";
+                return View();
+            }
+        }
 
+        public ActionResult Subir(HttpPostedFileBase AComprimir)
+        {
+            string direccion = "";
+            if (AComprimir != null && AComprimir.ContentLength > 0)
+            {
+                return RedirectToAction("ExitoC");
+            }
+            else
+            {
+                return RedirectToAction("ErrorC");
+            }
+            
+        }
+        public ActionResult ErrorC()
+        {
             return View();
         }
+
+        public ActionResult ExitoC()
+        {
+            return View();
+        }
+
     }
 }
