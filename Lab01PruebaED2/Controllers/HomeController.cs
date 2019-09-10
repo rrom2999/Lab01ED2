@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.IO;
+using Lab01PruebaED2.Models;
 
 namespace Lab01PruebaED2.Controllers
 {
     public class HomeController : Controller
     {
+        Dictionary<byte, Nodo> DMaster = new Dictionary<byte, Nodo>();
+
         public ActionResult Index()
         {
             return View();
@@ -41,9 +45,41 @@ namespace Lab01PruebaED2.Controllers
 
         public ActionResult Subir(HttpPostedFileBase AComprimir)
         {
-            string direccion = "";
             if (AComprimir != null && AComprimir.ContentLength > 0)
             {
+                const int TBuffer = 1024;
+                var NombreArchivo = AComprimir.FileName;
+                var DireccionArchivo = Server.MapPath($"~/ArchivoCargado/{NombreArchivo}");
+                AComprimir.SaveAs(DireccionArchivo);
+
+                using (var stream = new FileStream(DireccionArchivo, FileMode.Open))
+                {
+                    using (var Lector = new BinaryReader(stream))
+                    {
+                        var BytesBuffer = new byte[TBuffer];
+                        while(Lector.BaseStream.Position != Lector.BaseStream.Length)
+                        {
+                            BytesBuffer = Lector.ReadBytes(TBuffer);
+                            foreach(var ByteLeido in BytesBuffer)
+                            {
+                                if(DMaster.ContainsKey(ByteLeido) == true)
+                                {
+                                    DMaster[ByteLeido].Frecuencia++;
+                                }
+                                else
+                                {
+                                    Nodo NuevoN = new Nodo();
+                                    NuevoN.Valor = ByteLeido;
+                                    NuevoN.Frecuencia = 1;
+                                    NuevoN.EsHoja = true;
+                                    NuevoN.Derecho = null; NuevoN.Izquierdo = null;
+                                    DMaster.Add(ByteLeido, NuevoN);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 return RedirectToAction("ExitoC");
             }
             else
