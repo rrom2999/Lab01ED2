@@ -10,9 +10,16 @@ namespace Lab01PruebaED2.Models
     {
         public Nodo Izquierdo { get; set; }
         public Nodo Derecho { get; set; }
+        public Nodo Padre { get; set; }
         public byte Valor { get; set; }
         public int Frecuencia { get; set; }
-        public bool EsHoja { get; set; }
+        public bool EsRaiz { get; set; }
+        public string Prefijo { get; set; }
+
+        public int CompareTo(Nodo other)
+        {
+            return this.Frecuencia.CompareTo(other.Frecuencia);
+        }
 
         /*public Nodo()
         {
