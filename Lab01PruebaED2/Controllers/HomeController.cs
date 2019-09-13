@@ -18,7 +18,7 @@ namespace Lab01PruebaED2.Controllers
         static int X = 0;
         public ActionResult CargarArchivo()
         {
-            if(X > 0)
+            if (X > 0)
             {
                 ViewBag.Msg = "Error al cargar el archivo";
             }
@@ -59,12 +59,12 @@ namespace Lab01PruebaED2.Controllers
                     using (var Lector = new BinaryReader(stream))
                     {
                         var BytesBuffer = new byte[TBuffer];
-                        while(Lector.BaseStream.Position != Lector.BaseStream.Length)
+                        while (Lector.BaseStream.Position != Lector.BaseStream.Length)
                         {
                             BytesBuffer = Lector.ReadBytes(TBuffer);
-                            foreach(var ByteLeido in BytesBuffer)
+                            foreach (var ByteLeido in BytesBuffer)
                             {
-                                if(DMaster.ContainsKey(ByteLeido) == true)
+                                if (DMaster.ContainsKey(ByteLeido) == true)
                                 {
                                     DMaster[ByteLeido].Frecuencia++;
                                 }
@@ -83,20 +83,19 @@ namespace Lab01PruebaED2.Controllers
                 }
                 PasarALista(DMaster);
             }
-            
+
         }
 
         public void PasarALista(Dictionary<byte, Nodo> AOrdenar)
         {
             Dictionary<byte, Nodo> AuxAOrdenar = AOrdenar;
             List<Nodo> DiccionarioEnlistado = new List<Nodo>();
-            foreach(var ByteBase in AuxAOrdenar)
+            foreach (var ByteBase in AuxAOrdenar)
             {
                 Nodo Auxiliar = new Nodo();
                 Auxiliar.Valor = ByteBase.Key;
                 Auxiliar.Frecuencia = ByteBase.Value.Frecuencia;
                 DiccionarioEnlistado.Add(Auxiliar);
-                //AOrdenar.Remove(Auxiliar.Valor);
             }
 
             IEnumerable<Nodo> ListadoOrdenado = DiccionarioEnlistado.OrderBy(x => x.Frecuencia);
@@ -105,11 +104,10 @@ namespace Lab01PruebaED2.Controllers
 
         public void ArmarArbol(List<Nodo> Listado)
         {
-            //Guardar en otro list Auxiliar a Listado
             int NCaracteres = Listado.Count; //Para ver cuantas hojas se tienen
             Nodo Izquierdo = new Nodo();
             Nodo Derecho = new Nodo();
-            while(Listado.Count != 1)
+            while (Listado.Count != 1)
             {
                 Nodo PadreNuevo = new Nodo();
                 Izquierdo = Listado[0];
@@ -118,7 +116,7 @@ namespace Lab01PruebaED2.Controllers
                 PadreNuevo.Derecho = Derecho;
                 PadreNuevo.Frecuencia = Izquierdo.Frecuencia + Derecho.Frecuencia;
                 Izquierdo.Padre = PadreNuevo; //Para heredar el prefijo
-                Derecho.Padre = PadreNuevo; 
+                Derecho.Padre = PadreNuevo;
                 Listado.Remove(Izquierdo);
                 Listado.Remove(Derecho);
                 Listado.Add(PadreNuevo);
@@ -127,18 +125,47 @@ namespace Lab01PruebaED2.Controllers
             }
 
             Dictionary<byte, string> DPrefijos = new Dictionary<byte, string>();
+            List<Nodo> PostOrdenList = new List<Nodo>();
             AsignarPrefijos(Listado[0]);
-            //Hacer un metodo que vea
 
-            //while (NCaracteres > 0)
-            //{
-                //DPrefijos.Add(/*ObtenerPrefijos.Izq*/);
-                //DPrefijos.Add(/*ObtenerPrefijos.Der*/);
-                //NCaracteres -=2;
-            //}
+            PostOrden(PostOrdenList, Listado[0]);
 
-            //Llenar Dprefijos
+            LlenarDPrefijos(PostOrdenList, DPrefijos);
+
             //Llamar a Escristuradelcomprimido(Dprefijos)
+        }
+
+        public List<Nodo> PostOrden(List<Nodo> ListPostOrden, Nodo nodoActual)
+        {
+            ListPostOrden.Clear();
+            if (nodoActual != null)
+            {
+                PostOrden(nodoActual, ListPostOrden);
+            }
+            return ListPostOrden;
+        }
+
+        public void PostOrden(Nodo nodoRaiz, List<Nodo> ListPostOrden)
+        {
+            if (nodoRaiz != null)
+            {
+                PostOrden(nodoRaiz.Izquierdo, ListPostOrden);
+                PostOrden(nodoRaiz.Derecho, ListPostOrden);
+                if (nodoRaiz.Izquierdo == null && nodoRaiz.Derecho == null)
+                {
+                    ListPostOrden.Add(nodoRaiz);
+                }
+            }
+        }
+
+        public void LlenarDPrefijos(List<Nodo> LPrefijos, Dictionary<byte, string> DictionaryPrefijos)
+        {
+            List<Nodo> AuxLPrefijos = LPrefijos;
+            Dictionary<byte, string> AuxDictionaryPrefijos = DictionaryPrefijos;
+            foreach (var nodo in AuxLPrefijos)
+            {
+                AuxDictionaryPrefijos.Add(nodo.Valor, nodo.Prefijo);
+            }
         }
 
         public void AsignarPrefijos(Nodo Raiz)
@@ -164,26 +191,9 @@ namespace Lab01PruebaED2.Controllers
             }
         }
         //Hacer que devuelva Padre de hojas 
-        /*public Nodo ObtenerDPrefijos(Nodo Raiz)
-        {
-            //Nodo PadreADevolver = new Nodo();
-            if (Raiz.Izquierdo.Izquierdo == null && Raiz.Izquierdo.Derecho == null)
-            {
-                return Raiz; //Retorna raiz, un nivel anterior de la hoja, para en diccionario agregar Raiz.Izq y Raiz.Der
-            }
-            if (Raiz.Derecho.Izquierdo == null && Raiz.Derecho.Derecho == null)
-            {
-                return Raiz; //Agrega las hojas, con su prefijos, al diccionario 
-            }
-            else
-            {
-                ObtenerDPrefijos(Raiz.Izquierdo);
-                ObtenerDPrefijos(Raiz.Derecho);
-            }
-            //Enviar Dprefijos
-        }*/
-
         
+
+
         //public void EscribirComprimido( Dictionary<by)
 
         public ActionResult ErrorC()
